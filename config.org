@@ -1,0 +1,651 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="./worg.css" />
+#+OPTIONS: ^:nil
+#+OPTIONS: toc:nil
+#+OPTIONS: num:nil
+#+OPTIONS: html-postamble:nil
+#+TITLE: Emacs Configuration
+#+AUTHOR: Jodie MacEachern
+* Notes
+** Emacs
+**** Key Bindings
+| Edit or add a link                    | C-c C-l     |                |
+| Increase decrease font                | C-x C- +/-  |                |
+| increase Window height                | C-x ^ C-x z |                |
+| show Variable  "user-emacs-directory" | C-h v       |                |
+| show Function  "org-bable-load-file"  | C-h f       |                |
+| Increase font size                    | C-x +       |                |
+| Decrease font size                    | C-x -       |                |
+|---------------------------------------+-------------+----------------|
+| Git                                   |             |                |
+|---------------------------------------+-------------+----------------|
+| What did I change                     | C-x v =     |                |
+| Magit Git                             | C-g C-g     |                |
+| Show branches                         | y           |                |
+| Checkout branch                       | bb          |                |
+|---------------------------------------+-------------+----------------|
+| Org - mode                            |             |                |
+|---------------------------------------+-------------+----------------|
+| Capture task                          | C-c c t     |                |
+| Store Link                            | C-c l       | org-store-link |
+| Org Archive a task                    | C-c C-x C-a |                |
+| Schedule task                         | C-c C-s     |                |
+| Narrow buffer to sub tree             | C-x n s/w   |                |
+|---------------------------------------+-------------+----------------|
+| Send Email                            | C-x m       |                |
+|                                       |             |                |
+*** Windows Issues
+**** With magit commit server is unsafe error.
+.emacs.d/server is unsafe:
+1. Right click on the server folder.
+2. Select the Security tab.
+3. Select the advanced button.
+4. Select the owner tab.
+5. Change the owner to your name.
+
+| decrease Window width  | C-x } C-x z |                |
+** Vim
+**** Ctags:
+cscope -bvR
+ctags -R
+**** UI options.
+:source %   -- Reload .vimrc .. when on the .vimrc file.
+set cursorline
+set guioptions-=m  "remove menu bar
+set guioptions-=T  "remove toolbar
+set guioptions-=r  "remove right-hand scroll bar
+set guioptions-=L  "remove left-hand scroll bar
+map <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR> 
+set statusline+=%f
+
+**** Command mode
+| Paste into a Command prompt | Copy with register "ayw (copy word to reg a) C-ra |
+|                             |                                                   |
+**** Book Marks
+ba - local file bookmark
+bA - Global file bookmark
+** Git
+| get Latest           | git pull origin master            |
+| stage Modified files | git add -u                        |
+| commiting            | git commit -m"My logging message" |
+| revert Changed file  | git checkout filename             |
+#+BEGIN_SRC 
+git config --global user.name "name"
+git config --global user.email "email@email.com"
+#+END_SRC
+** GPG
+*** Commands
+| What                                          | How                                                                                            |
+|-----------------------------------------------+------------------------------------------------------------------------------------------------|
+| Generate Key                                  | gpg --gen-key                                                                                  |
+| Encrypt from echo                             | echo "secret message for Peter"  gpg --encrypt --armor --recipient "Peter Loshin" --no-version |
+|                                               | echo "Hello" gpg -e -u"jodiemacnswork@gmail.com" -r"Just a" --armor                            |
+| Give them proof of the signed key             | gpg --export --armor email@example.com                                                         |
+| Get Key id's                                  |                                                                                                |
+|-----------------------------------------------+------------------------------------------------------------------------------------------------|
+| In case it is lost.. this generates           | gpg --gen-revoke your_email@address.com                                                        |
+| Import another someones pub key               | gpg --import name_of_pub_key_file                                                              |
+|                                               | gpg --keyserver pgp.mit.edu                                                                    |
+| search for keys                               | --search-keys search_parameters                                                                |
+| Sign a key thay you imported                  | gpg --sign-key email@example.com                                                               |
+| They should import with import when received. |                                                                                                |
+| Export public key to be shared.               | gpg --armor --export yo_email@add.com                                                          |
+| Export public key (Binary) to be shared.      | gpg --output jbtce.gpg --export jodiebtce@gmail.com                                            |
+| List who has signed my keys.                  | gpg --list-sigs myemail@email.com                                                              |
+| Email it to someone.                          | mutt -s "Pub key" jodiemacns@gmail.com < jbtce.txt -a ./jbtce.gpg                              |
+| Encrypt for only receiver to receive.         | gpg -e -u sender@gmail.com -r receiver@gmail.com name.tar.gz                                   |
+| Encrypt and sign                              | gpg --encrypt --sign --armor -r                                                                |
+|                                               | person@email.com name_of_file                                                                  |
+| unencrypt                                     | gpg file_name                                                                                  |
+|                                               |                                                                                                |
+| sign document                                 | gpg --output s.sig --sign s.txt                                                                |
+| Verify and get doc.                           | gpg --output doc --decrypt doc.sig                                                             |
+| Could be revoked                              | gpg --refresh-keys                                                                             |
+*** Setting a default signing key
+#+BEGIN_SRC 
+gpg --list-secret-keys 
+/home/gert/.gnupg/secring.gpg
+-----------------------------
+sec   4096R/13371337 2011-01-01 [expires: 2014-01-01]
+uid                  Gert van Dijk (1st key) <name@example.tld>
+ssb   4096R/31337313 2011-01-01
+
+sec   4096R/12345678 2013-04-23 [expires: 2014-01-01]
+uid                  Gert van Dijk (2nd key) <name@example.tld>
+ssb   4096R/87654321 2013-04-23
+add a line in ~/.gnupg/gpg.conf:
+
+default-key 12345678
+#+END_SRC
+
+** GNUS
+| New Email              | m           |
+| Cancel Email and close | C-c C-k     |
+| Encrypt email          | C-c C-m c o |
+| Send email             | C-c C-c     |
+
+* Startup inits
+#+BEGIN_SRC emacs-lisp
+  (semantic-mode 1)
+  (defun my:add-semantic-to-autocomplete()
+    (add-to-list 'ac-sources 'ac-source-semantic))
+  (global-ede-mode 1)
+  (add-hook 'c-mode-common-hook 'my:add-semantic-to-autocomplete)
+#+END_SRC   
+* Custom Settings
+Set up the customize file to its own separate file, instead of saving
+customize settings in init.el.
+
+#+BEGIN_SRC emacs-lisp
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file)
+#+END_SRC
+
+** Windows Stuff
+*** For magit
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'exec-path "C:/Program Files (x86)/Git/bin")
+#+END_SRC
+
+*** For Spelling
+#+BEGIN_SRC emacs-lisp 
+;; Enable spelling -----------------------------------------------------------------
+(add-to-list 'exec-path "C:/jodie/develop/emacs/Aspell/bin/")
+(setq ispell-program-name "aspell")
+(setq ispell-personal-dictionary "C:/jodie/develop/emacs/Aspell/.ispell")
+#+END_SRC
+* Theme
+** Cyberpunk theme
+The cyberpunk theme is dark and colorful. 
+#+BEGIN_SRC 
+  (use-package cyberpunk-theme
+               :ensure t
+               :init
+               (progn
+                 (load-theme 'cyberpunk t)
+                 (set-face-attribute 'mode-line nil
+                                     :box nil)
+                 (set-face-attribute 'mode-line-inactive nil
+                                     :box nil)))
+#+END_SRC
+** hydandata-light
+#+BEGIN_SRC __emacs-lisp 
+  (use-package hydandata-light-theme
+    :ensure t
+    :init)
+
+#+END_SRC
+* My functions
+** Compiling Tags
+#+BEGIN_SRC emacs-lisp
+  (defun j-compile-tags ()
+    "compile etags for the current project"
+    (interactive)
+    (compile "find .  \( -name \"*.[chCH]\" -o -name \"*.inc\" \) -print | etags -"))
+  (defun ju-compile-tags ()
+    "compile etags for the current project"
+    (interactive)
+    (compile "find . -name \"*.[ch]\" -print | etags -"))
+#+END_SRC
+** Git Bash
+#+BEGIN_SRC emacs-lisp
+  (defun git-bash () (interactive)
+    (let ((explicit-shell-file-name  "C:/Program Files (x86)/Git/bin/bash"))
+      (setq explicit-bash.exe-args '("--login" "-i"))
+      (call-interactively 'shell)))
+#+END_SRC
+** Edit the config file
+#+BEGIN_SRC emacs-lisp
+  (defun editemacs ()
+    "Edit emacs config file."
+    (interactive)
+    (find-file "~/.emacs.d/config.org"))
+#+END_SRC
+** Edit the todos
+#+BEGIN_SRC emacs-lisp
+  (defun edittodos ()
+    "Edit the todos"
+    (interactive)
+    (find-file "~/orgtodos.org"))
+#+END_SRC
+   
+** Compiling
+*** Open projects
+#+BEGIN_SRC emacs-lisp
+  (defun jneo2()
+    (interactive)
+    (find-file "~/projects/platformb/panel/makefile")
+    (find-file "~/projects/platformb/keypad/makefile")
+    )
+#+END_SRC    
+*** Targets
+**** Keypad
+#+BEGIN_SRC emacs-lisp
+(defun jcompilekeypad ()
+  (interactive)
+  (delete-other-windows)
+  (split-window-horizontally)
+  (other-window 1)
+  (split-window-vertically)
+  (switch-to-buffer "makefile")
+  (compile "mingw32-make.exe -j4  ")
+  (other-window 1)
+  (end-of-buffer)
+  (other-window 1)
+  )
+#+END_SRC
+**** Panel
+#+BEGIN_SRC emacs-lisp
+
+(defun jcompilepanel-m ()
+  (interactive)
+  (delete-other-windows)
+  (split-window-horizontally)
+  (other-window 1)
+  (split-window-vertically)
+  (switch-to-buffer "makefile<panel>")
+  (compile "mingw32-make.exe -j8 ")
+  (other-window 1)
+  (end-of-buffer)
+  (other-window 1)
+  )
+
+#+END_SRC
+**** Base Code
+#+BEGIN_SRC emacs-lisp
+
+(defun jcompilebase ()
+  (interactive)
+  (delete-other-windows)
+  (split-window-horizontally)
+  (other-window 1)
+  (split-window-vertically)
+  (switch-to-buffer "makefile")
+  (compile "mingw32-make.exe -j1 ")
+  (other-window 1)
+  (end-of-buffer)
+  (other-window 1)
+  )
+
+(defun jcompilebaseclean ()
+  (interactive)
+  (delete-other-windows)
+  (split-window-horizontally)
+  (other-window 1)
+  (split-window-vertically)
+  (switch-to-buffer "makefile")
+  (compile "mingw32-make.exe -j1 clean")
+  (other-window 1)
+  (end-of-buffer)
+  (other-window 1)
+  )
+#+END_SRC
+**** General makefile
+#+BEGIN_SRC emacs-lisp
+
+(defun jcompile ()
+  (interactive)
+  (delete-other-windows)
+  (split-window-horizontally)
+  (other-window 1)
+  (split-window-vertically)
+  (switch-to-buffer "makefile")
+  (compile "mingw32-make.exe -j8 test")
+  (other-window 1)
+  (end-of-buffer)
+  (other-window 1)
+  )
+
+#+END_SRC
+**** Linting
+#+BEGIN_SRC emacs-lisp
+(defun jlintq ()
+  (interactive)
+  (delete-other-windows)
+  (split-window-horizontally)
+  (other-window 1)
+  (split-window-vertically)
+  (switch-to-buffer "quasar.bat")
+  (compile "lint-nt.exe +v -w2 -u quasarui.lnt")
+  (other-window 1)
+  (end-of-buffer)
+  (other-window 1)
+  (message "J- Clean")
+  )
+#+END_SRC
+*** Error parsers
+#+BEGIN_SRC emacs-lisp
+;;------------------------------------------------------------------------------------
+;; Set compiler parsing ... File Line column so output will jump to the file and line.
+(require 'compile) 
+
+; This is the pclint compiler parsing.
+(add-to-list  'compilation-error-regexp-alist '("\\(\\.\\\\[A-Z,a-z,\\,_]*.[c,h]\\) *\\([0-9]*\\)" 1 2))
+(add-to-list  'compilation-error-regexp-alist '("\\([0-9]*\\), file \\(\\.\\\\[A-Z,a-z,\\,_]*.[c,h]\\)" 2 1))
+
+; This is the IAR compiler parsing.
+(add-to-list  'compilation-error-regexp-alist '("\\([A-Z,a-z,0-9,\\,\_\:]*.c\\)\\\",\\([0-9]*\\)" 1 2))
+; This is the Splint compiler parsing.
+(add-to-list  'compilation-error-regexp-alist '("\\(\.[A-Z,a-z,_,0-9\\]*\\.[c,h]\\)(\\([0-9]*\\),\\([0-9]*\\)" 1 2 3))
+;common
+;(add-to-list  'compilation-error-regexp-alist '("\\(\\.\\\\[A-Z,a-z,\\,_]*.[c,h]\\)" 1))
+;;"\\(.+[.][ch]\\)?[(]\\([0-9]+\\),\\([0-9]+\\)"
+;; Add Splint parsing
+(add-to-list `compilation-error-regexp-alist
+ 	     `maven)
+(add-to-list `compilation-error-regexp-alist
+ 	     `("\\(.+[.][ch]\\)?[(]\\([0-9]+\\),\\([0-9]+\\)"
+ 	       1 2 3))
+#+END_SRC
+** COMMENT My Themes
+#+BEGIN_SRC emacs-lisp
+  (defun jcolor3 ()
+    (interactive)
+
+    (set-background-color "Light Grey")             ; Black background is cool.
+    (set-foreground-color "LavenderBlush3");     ; Black background is cool.
+    (set-cursor-color "Purple");                 ; Black background is cool.
+
+    ;; function names
+    (copy-face 'bold 'font-lock-function-name-face)
+    (copy-face 'italic 'font-lock-function-name-face)
+
+    ;; Keywords
+    (set-face-foreground 'font-lock-keyword-face "cornsilk4")
+    (set-face-foreground 'font-lock-string-face "red")
+    (set-face-foreground 'font-lock-comment-face "forest green" )
+    (set-variable font-lock-comment-face 'font-lock-comment-face)
+  )
+
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp 
+  (defun jcolor2 ()
+    (interactive)
+    (set-default-font "-*-courier new-normal-r-*-*-16-*-*-*-c-*-fontset-standard")
+    (set-background-color "White");     ; Black background is cool.
+    (set-foreground-color "Black");     ; Black background is cool.
+    (set-cursor-color "Purple");        ; Black background is cool.
+
+    ;; function names
+    (copy-face 'bold 'font-lock-function-name-face)
+    (set-face-foreground 'font-lock-function-name-face "black")
+    (set-face-foreground 'font-lock-type-face "BLACK")
+
+    ;; Keywords
+    (set-face-foreground 'font-lock-string-face "DarkSlateGray1")
+    (set-face-foreground 'font-lock-comment-face "dark green" )
+    (set-face-foreground 'font-lock-string-face "red")
+    (set-face-background 'mode-line "white")
+    (set-face-background 'mode-line-inactive "white")
+    (setq global-hl-line-mode 'nil)
+    (set-face-background 'linum "white")
+    (set-variable font-lock-comment-face 'font-lock-comment-face)
+  l)
+
+#+END_SRC
+
+** Miscellaneous 
+#+BEGIN_SRC emacs-lisp
+(defun j-cutline ()
+  "Cut off at 80 lines."
+  (interactive)
+  (move-to-column 80)
+  (right-word)
+  (left-word)
+  (newline))
+#+END_SRC
+* Packages
+** evil mode config
+#+BEGIN_SRC emacs-lisp
+  (use-package evil
+    :ensure t)
+(evil-set-initial-state 'calendar-mode 'emacs)
+(evil-set-initial-state 'calculator-mode 'emacs)
+(evil-set-initial-state 'Keys-mode 'emacs)
+(evil-set-initial-state 'message-mode 'emacs)
+(evil-set-initial-state 'Shell-mode 'emacs)
+#+END_SRC
+** Company autocomplete
+#+BEGIN_SRC DISABLEemacs-lisp
+  (use-package company
+    :ensure t)
+  (add-hook 'after-init-hook 'global-company-mode)
+  (setq company-backends (delete 'company-semantic company-backends))
+;  (define-key c-mode-map  [(tab)] 'company-complete)
+;  (define-key c++-mode-map  [(tab)] 'company-complete)
+
+#+END_SRC
+** Neo Tree
+#+BEGIN_SRC emacs-lisp
+  (use-package neotree
+    :ensure t)
+    (add-hook 'neotree-mode-hook
+              (lambda ()
+                (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
+                (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-enter)
+                (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+                (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)))
+; Disable keybinding for these modes
+#+END_SRC
+** Auto complete
+#+BEGIN_SRC emacs-lisp
+  (use-package auto-complete
+    :ensure t)
+  (require 'auto-complete)
+  ; do default config for auto-complete
+  (require 'auto-complete-config)
+  (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
+  (ac-config-default)
+#+END_SRC
+** Magit
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :ensure t)
+#+END_SRC
+** Flycheck
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :ensure t)
+#+END_SRC
+** sr-speedbar
+#+BEGIN_SRC emacs-lisp
+  (use-package sr-speedbar
+    :ensure t)
+(setq speedbar-use-images nil)
+#+END_SRC
+** Column marker mode.
+#+BEGIN_SRC emacs-lisp
+  (use-package fill-column-indicator
+    :ensure t)
+#+END_SRC
+   
+** COMMENT SSH 
+#+BEGIN_SRC emacs-lisp
+  (use-package ssh
+    :ensure t)
+  (use-package ssh-agency
+               :ensure t)
+#+END_SRC
+* Languages
+** C
+#+BEGIN_SRC emacs-lisp 
+  ;;Set the indenting for C code styles.
+  (setq c-mode-hook
+      (function (lambda ()
+                  (setq indent-tabs-mode nil)
+                  (set-fill-column 80)
+                  (setq c-indent-level 3))))
+  (setq objc-mode-hook
+      (function (lambda ()
+                  (setq indent-tabs-mode nil)
+                  (setq c-indent-level 3))))
+  (setq c++-mode-hook
+        (function (lambda ()
+                  (setq indent-tabs-mode nil)
+                  (setq c-indent-level 3))))
+
+  (setq frame-title-format "Emacs - %f ")      ; Display filename in title bar window
+
+  (add-hook 'c-mode-common-hook
+            '(lambda ()
+               (fci-mode)
+               (setq tab-width 3)
+               (c-set-style "linux")
+               (setq c-basic-offset 3)
+               (c-set-offset 'knr-argdecl-intro 0)
+               (c-set-offset 'label -1000)
+               (c-toggle-auto-state 1)
+               (c-set-offset 'case-label '+)))
+  (add-hook 'c-mode-common-hook
+            (lambda ()
+              (flyspell-prog-mode)
+              (flycheck-mode)
+              ))
+  (add-hook 'c-mode-common-hook
+            (lambda () (setq flycheck-clang-include-path
+                             (list (expand-file-name "C:/MinGW/include/"))))
+            )
+                       
+
+#+END_SRC
+* Projects
+** Panel
+* Mail
+  gnus
+  | m           | new Email                                    |
+  | q           | Quit                                         |
+  | C-c C-m s o | Digitally sign current message using PGP.    |
+  | C-c C-m c o | Digitally encrypt current message using PGP. |
+  |             |                                              |
+#+BEGIN_SRC emacs-lisp
+    (setq send-mail-function                'smtpmail-send-it
+          message-send-mail-function        'smtpmail-send-it
+          smtpmail-smtp-server              "smtp.gmail.com"
+          smtpmail-user-mail-address        "me@me.com"
+          user-mail-address                 "me@me.com"
+          user-full-name                    "me")
+
+    (setq gnus-select-method
+          '(nnimap "gmail"
+                   (nnimap-address "imap.gmail.com")  ; it could also be imap.googlemail.com if that's your server.
+                   (nnimap-server-port "imaps")
+                   (nnimap-stream ssl)))
+    (setq smtpmail-smtp-service 587
+          gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
+  (setq mm-sign-option                  'guided
+        mm-encrypt-option               'guided
+        )
+#+END_SRC
+
+* Key Bindings
+#+BEGIN_SRC emacs-lisp
+  ; KeyBindings ----------------------------------------------------------------------
+  (global-set-key [f1] 'org-agenda)
+  (global-set-key [f2] 'previous-buffer)
+  (global-set-key [f3] 'next-buffer)
+  (global-set-key [f4] 'kill-buffer)
+  (global-set-key [f5] 'revert-buffer)
+  (global-set-key [f6] 'kill-dired-buffers)
+  (global-set-key [f7] 'ispell-word)
+  (global-set-key [f8] 'sr-speedbar-toggle)
+  (global-set-key [f9] 'evil-mode)
+  (global-set-key [f10] 'call-last-kbd-macro)          
+  (global-set-key [f11] 'toggle-frame-fullscreen)
+  (global-set-key [f12] 'buffer-menu)
+  (global-set-key "\M-0"  'bookmark-set)
+  (global-set-key "\M-?"  `bookmark-bmenu-list)
+  (global-set-key (kbd "C-.") 'jcompilebase)
+  (global-set-key (kbd "C-,") 'other-window)
+  (global-set-key (kbd "C-c b")  'buffer-menu)
+  (global-set-key (kbd "C-c l")  'org-store-link) 
+  (global-set-key (kbd "M-n")  'forward-paragraph)
+  (global-set-key (kbd "M-p")  'backward-paragraph)
+  (global-set-key (kbd "<M-f1>")  'editemacs)
+  (global-set-key (kbd "<M-f2>")   'shell)
+  (global-set-key (kbd "<M-f3>")   'edittodos)
+  (global-set-key (kbd "<M-f4>")   'org-agenda)
+  (global-set-key (kbd "<M-f5>")   'diary)
+  (global-set-key (kbd "<M-f6>")   'calendar)
+  (global-set-key (kbd "<M-f7>")  'jcompilepanelclean)
+  ;;(global-set-key (kbd "<M-f10>")  'j-compile-console-clean)
+  ;;(global-set-key (kbd "<M-f11>")  'jcompilebaseclean)
+  (global-set-key (kbd "<M-f10>")  'jcompilepanel)
+  (global-set-key (kbd "<M-f11>")  'jcompilepanel)
+  (global-set-key (kbd "C-c m")  'jcompilepanel-m)
+  (global-set-key (kbd "C-c n")  'jcompilekeypad-n)
+
+  (global-set-key (kbd "<M-f12>")  'jcompilebase)
+  (global-set-key (kbd "C-x <up>") 'windmove-up)
+  (global-set-key (kbd "C-x <down>") 'windmove-down)
+  (global-set-key (kbd "C-x <right>") 'windmove-right)
+  (global-set-key (kbd "C-x <left>") 'windmove-left)
+  (global-set-key (kbd "C-c d") 'org-time-stamp)
+  (global-set-key (kbd "C-x c") 'calendar)
+  (global-set-key (kbd "C-x C-g") 'magit-status)
+  (define-key global-map "\C-cc" 'org-capture)
+#+END_SRC
+
+* Org Settings
+#+BEGIN_SRC emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (ditaa . t)
+     (C .t)
+     (sh .t)
+     (python .t)
+     )) ; this line activates ditaa
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (flyspell-mode)
+              ))
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (fci-mode)
+              (set-fill-column 80)
+              ))
+  (appt-activate 1)
+  (setq appt-message-warning-time 15)
+  (setq appt-checking-p t)
+  (setq appt-display-interval 5)
+  (add-hook 'diary-hook 'appt-make-list)
+  (setq magit-auto-revert-mode nil)
+  (setq magit-last-seen-setup-instructions "1.4.0")
+  (setq org-export-with-sub-superscripts nil)
+  (setq org-hierarchical-todo-statistics nil)
+  (setq org-default-notes-file (concat org-directory "todos.org"))
+  (setq projectile-require-project-root nil)
+        
+    ;Did not work  (setq org-directory "~/.emacs.d/orgs/") 
+#+END_SRC
+* Diary and Calendar Settings
+#+BEGIN_SRC emacs-lisp
+  (setq view-diary-entries-initially t
+        mark-diary-entries-in-calendar t
+        number-of-diary-entries 7)
+  (add-hook 'diary-display-hook 'fancy-diary-display)
+  (add-hook 'today-visible-calendar-hook 'calendar-mark-today)
+#+END_SRC
+* Startup Settings
+#+BEGIN_SRC emacs-lisp
+  ;----------------------------------------------------------------------------------------
+  ; This will set up the find and search to use the UNIX style rather than the windows one.
+  ;; (when (or (eq system-type 'windows-nt) (eq system-type 'msdos))
+  (setenv "PATH" (concat "C:\\jodie\\jbin;" (getenv "PATH")))
+  (setq find-program "C:\\jodie\\jbin\\find.exe"
+        grep-program "C:\\jodie\\jbin\\grep.exe")
+
+  (setq org-agenda-include-diary t)
+  (global-linum-mode t)   ;SLOW
+  (global-hl-line-mode t) ;SLOW
+  (setq visible-bell t)                                ; Flash screen instead of anoying beep.
+  (show-paren-mode t)                                  ; Flash the cursor on matching braces.
+  (display-time)                                       ; Display the time on the bottom of the screen.
+  (evil-mode t)
+  (set-default 'truncate-lines t)
+  (column-number-mode 1)
+  (flyspell-mode t)
+  ;(flyspell-prog-mode)
+  (fci-mode)
+  (set-fill-column 80)
+#+END_SRC
