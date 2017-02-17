@@ -471,6 +471,17 @@ The cyberpunk theme is dark and colorful.
     :ensure t)
 #+END_SRC
 ** Flycheck
+Requires some config in the .dir-locals.el
+#+BEGIN_SRC 
+((c++-mode . ((flycheck-clang-include-path . (
+					    "/home/jodie/git/HashTableExample/HashTableExample/src/"
+					    "/home/jodie/git/HashTableExample/HashTableExample/include/"
+					    ))
+	    (flycheck-clang-definitions . (
+					   "VERSION=\"4.5p\""
+					   ))))
+ )
+#+END_SRC
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck
     :ensure t)
