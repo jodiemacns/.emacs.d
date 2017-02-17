@@ -124,13 +124,6 @@ default-key 12345678
 | Send email             | C-c C-c     |
 
 * Startup inits
-#+BEGIN_SRC emacs-lisp
-  (semantic-mode 1)
-  (defun my:add-semantic-to-autocomplete()
-    (add-to-list 'ac-sources 'ac-source-semantic))
-  (global-ede-mode 1)
-  (add-hook 'c-mode-common-hook 'my:add-semantic-to-autocomplete)
-#+END_SRC   
 * Custom Settings
 Set up the customize file to its own separate file, instead of saving
 customize settings in init.el.
@@ -416,16 +409,7 @@ The cyberpunk theme is dark and colorful.
 (evil-set-initial-state 'message-mode 'emacs)
 (evil-set-initial-state 'Shell-mode 'emacs)
 #+END_SRC
-** Company autocomplete
-#+BEGIN_SRC DISABLEemacs-lisp
-  (use-package company
-    :ensure t)
-  (add-hook 'after-init-hook 'global-company-mode)
-  (setq company-backends (delete 'company-semantic company-backends))
-;  (define-key c-mode-map  [(tab)] 'company-complete)
-;  (define-key c++-mode-map  [(tab)] 'company-complete)
 
-#+END_SRC
 ** Neo Tree
 #+BEGIN_SRC emacs-lisp
   (use-package neotree
@@ -440,13 +424,46 @@ The cyberpunk theme is dark and colorful.
 #+END_SRC
 ** Auto complete
 #+BEGIN_SRC emacs-lisp
-  (use-package auto-complete
+    (use-package auto-complete
+      :ensure t)
+    (use-package ac-c-headers
+      :ensure t)
+    (require 'auto-complete)
+    ; do default config for auto-complete
+    (require 'auto-complete-config)
+    (ac-config-default)
+
+  (defun my:ac-c-header-init ()
+    (require 'auto-complete-c-headers)
+    (add-to-list 'ac-sources 'ac-source-c-headers)
+    (add-to-list 'achead:include-directories '"/usr/lib/gcc/x86_64-linux-gnu/6/include")
+
+;;   (add-to-list 'achead:include-directories '"/usr/include/c++/6")
+;;   (add-to-list 'achead:include-directories '"/usr/include/x86_64-linux-gnu/c++/6")
+;;   (add-to-list 'achead:include-directories '"/usr/include/c++/6/backward")
+;;   (add-to-list 'achead:include-directories '"/usr/lib/gcc/x86_64-linux-gnu/6/include")
+;;   (add-to-list 'achead:include-directories '"/usr/local/include")
+;;   (add-to-list 'achead:include-directories '"/usr/lib/gcc/x86_64-linux-gnu/6/include-fixed")
+;;   (add-to-list 'achead:include-directories '"/usr/include/x86_64-linux-gnu")
+;;   (add-to-list 'achead:include-directories '"/usr/include")
+)
+
+
+
+
+
+
+
+
+  (add-hook 'c++-mode-hook 'my:ac-c-header-init)
+  (add-hook 'c-mode-hook 'my:ac-c-header-init)
+
+#+END_SRC
+** Yasnippet
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
     :ensure t)
-  (require 'auto-complete)
-  ; do default config for auto-complete
-  (require 'auto-complete-config)
-  (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
-  (ac-config-default)
+  (yas-global-mode t)
 #+END_SRC
 ** Magit
 #+BEGIN_SRC emacs-lisp
@@ -499,7 +516,7 @@ The cyberpunk theme is dark and colorful.
 
   (add-hook 'c-mode-common-hook
             '(lambda ()
-               (fci-mode)
+               ;;__(fci-mode)
                (setq tab-width 3)
                (c-set-style "linux")
                (setq c-basic-offset 3)
@@ -519,8 +536,6 @@ The cyberpunk theme is dark and colorful.
                        
 
 #+END_SRC
-* Projects
-** Panel
 * Mail
   gnus
   | m           | new Email                                    |
@@ -612,7 +627,7 @@ The cyberpunk theme is dark and colorful.
               ))
   (add-hook 'org-mode-hook
             (lambda ()
-              (fci-mode)
+              ;(fci-mode)
               (set-fill-column 80)
               ))
   (appt-activate 1)
@@ -639,24 +654,46 @@ The cyberpunk theme is dark and colorful.
 #+END_SRC
 * Startup Settings
 #+BEGIN_SRC emacs-lisp
-  ;----------------------------------------------------------------------------------------
-  ; This will set up the find and search to use the UNIX style rather than the windows one.
-  ;; (when (or (eq system-type 'windows-nt) (eq system-type 'msdos))
-  (setenv "PATH" (concat "C:\\jodie\\jbin;" (getenv "PATH")))
-  (setq find-program "C:\\jodie\\jbin\\find.exe"
-        grep-program "C:\\jodie\\jbin\\grep.exe")
+    (setq org-agenda-include-diary t)
+    (global-linum-mode t)   ;SLOW
+  ;  (global-hl-line-mode t) ;SLOW
+    (setq visible-bell t)                                ; Flash screen instead of anoying beep.
+    (show-paren-mode t)                                  ; Flash the cursor on matching braces.
+    (display-time)                                       ; Display the time on the bottom of the screen.
+    (evil-mode t)
+    (set-default 'truncate-lines t)
+    (column-number-mode 1)
+    (flyspell-mode t)
+    ;(flyspell-prog-mode)
+    ;(fci-mode)
+    (set-fill-column 80)
+    ;; setup GDB
+    (setq
+     ;; use gdb-many-windows by default
+     gdb-many-windows t
 
-  (setq org-agenda-include-diary t)
-  (global-linum-mode t)   ;SLOW
-  (global-hl-line-mode t) ;SLOW
-  (setq visible-bell t)                                ; Flash screen instead of anoying beep.
-  (show-paren-mode t)                                  ; Flash the cursor on matching braces.
-  (display-time)                                       ; Display the time on the bottom of the screen.
-  (evil-mode t)
-  (set-default 'truncate-lines t)
-  (column-number-mode 1)
-  (flyspell-mode t)
-  ;(flyspell-prog-mode)
-  (fci-mode)
-  (set-fill-column 80)
+     ;; Non-nil means display source file containing the main routine at startup
+     gdb-show-main t
+
+    )
+    (if (display-graphic-p)
+        ()
+        (custom-set-faces
+         '(col-highlight ((t (:background "color-233"))))
+         '(hl-line ((t (:background "color-233"))))
+         '(lazy-highlight ((t (:background "black" :foreground "white" :underline t))))
+         '(neo-dir-link-face ((t (:foreground "cyan"))))
+         '(neo-file-link-face ((t (:foreground "white")))))
+        (custom-set-variables)
+        )
+
+  (semantic-mode 1)
+  (defun my:add-semantic-to-autocomplete()
+    (add-to-list 'ac-sources 'ac-source-semantic)
+    )
+  (add-hook 'c-mode-common-hook 'my:add-semantic-to-autocomplete)
+  (global-ede-mode 1)
+  (ede-cpp-root-project "Hash" :file "/home/jodie/git/HashTableExample/HashTableExample/src/main.cpp"
+		      :include-path '("/../include"))
+(setq popup-use-optimized-column-computation nil)
 #+END_SRC
