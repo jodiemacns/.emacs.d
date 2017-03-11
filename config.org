@@ -544,7 +544,7 @@ Requires some config in the .dir-locals.el
               ))
   (add-hook 'c-mode-common-hook
             (lambda () (setq flycheck-clang-include-path
-                             (list (expand-file-name "C:/MinGW/include/"))))
+                             (list (expand-file-name "/usr/lib/avr/include/avr"))))
             )
                        
 
@@ -706,7 +706,5 @@ Requires some config in the .dir-locals.el
     )
   (add-hook 'c-mode-common-hook 'my:add-semantic-to-autocomplete)
   (global-ede-mode 1)
-  (ede-cpp-root-project "Hash" :file "/home/jodie/git/HashTableExample/HashTableExample/src/main.cpp"
-		      :include-path '("/../include"))
 (setq popup-use-optimized-column-computation nil)
 #+END_SRC
