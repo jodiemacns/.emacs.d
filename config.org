@@ -211,67 +211,6 @@ The cyberpunk theme is dark and colorful.
     )
 #+END_SRC    
 *** Targets
-**** Keypad
-#+BEGIN_SRC emacs-lisp
-(defun jcompilekeypad ()
-  (interactive)
-  (delete-other-windows)
-  (split-window-horizontally)
-  (other-window 1)
-  (split-window-vertically)
-  (switch-to-buffer "makefile")
-  (compile "mingw32-make.exe -j4  ")
-  (other-window 1)
-  (end-of-buffer)
-  (other-window 1)
-  )
-#+END_SRC
-**** Panel
-#+BEGIN_SRC emacs-lisp
-
-(defun jcompilepanel-m ()
-  (interactive)
-  (delete-other-windows)
-  (split-window-horizontally)
-  (other-window 1)
-  (split-window-vertically)
-  (switch-to-buffer "makefile<panel>")
-  (compile "mingw32-make.exe -j8 ")
-  (other-window 1)
-  (end-of-buffer)
-  (other-window 1)
-  )
-
-#+END_SRC
-**** Base Code
-#+BEGIN_SRC emacs-lisp
-
-(defun jcompilebase ()
-  (interactive)
-  (delete-other-windows)
-  (split-window-horizontally)
-  (other-window 1)
-  (split-window-vertically)
-  (switch-to-buffer "makefile")
-  (compile "mingw32-make.exe -j1 ")
-  (other-window 1)
-  (end-of-buffer)
-  (other-window 1)
-  )
-
-(defun jcompilebaseclean ()
-  (interactive)
-  (delete-other-windows)
-  (split-window-horizontally)
-  (other-window 1)
-  (split-window-vertically)
-  (switch-to-buffer "makefile")
-  (compile "mingw32-make.exe -j1 clean")
-  (other-window 1)
-  (end-of-buffer)
-  (other-window 1)
-  )
-#+END_SRC
 **** General makefile
 #+BEGIN_SRC emacs-lisp
 
@@ -282,12 +221,48 @@ The cyberpunk theme is dark and colorful.
   (other-window 1)
   (split-window-vertically)
   (switch-to-buffer "makefile")
-  (compile "mingw32-make.exe -j8 test")
+  (compile "make all")
   (other-window 1)
   (end-of-buffer)
   (other-window 1)
   )
 
+(defun jclean ()
+  (interactive)
+  (delete-other-windows)
+  (split-window-horizontally)
+  (other-window 1)
+  (split-window-vertically)
+  (switch-to-buffer "makefile")
+  (compile "make clean")
+  (other-window 1)
+  (end-of-buffer)
+  (other-window 1)
+  )
+(defun jrun()
+  (interactive)
+  (delete-other-windows)
+  (split-window-horizontally)
+  (other-window 1)
+  (split-window-vertically)
+  (switch-to-buffer "makefile")
+  (compile "make run")
+  (other-window 1)
+  (end-of-buffer)
+  (other-window 1)
+  )
+(defun jdoc()
+  (interactive)
+  (delete-other-windows)
+  (split-window-horizontally)
+  (other-window 1)
+  (split-window-vertically)
+  (switch-to-buffer "makefile")
+  (compile "make doc")
+  (other-window 1)
+  (end-of-buffer)
+  (other-window 1)
+  )
 #+END_SRC
 **** Linting
 #+BEGIN_SRC emacs-lisp
@@ -297,12 +272,12 @@ The cyberpunk theme is dark and colorful.
   (split-window-horizontally)
   (other-window 1)
   (split-window-vertically)
-  (switch-to-buffer "quasar.bat")
-  (compile "lint-nt.exe +v -w2 -u quasarui.lnt")
+  (switch-to-buffer "makefile")
+  (compile "splint")
   (other-window 1)
   (end-of-buffer)
   (other-window 1)
-  (message "J- Clean")
+  (message "J- Lint")
   )
 #+END_SRC
 *** Error parsers
@@ -579,10 +554,10 @@ Requires some config in the .dir-locals.el
 * Key Bindings
 #+BEGIN_SRC emacs-lisp
   ; KeyBindings ----------------------------------------------------------------------
-  (global-set-key [f1] 'org-agenda)
-  (global-set-key [f2] 'previous-buffer)
-  (global-set-key [f3] 'next-buffer)
-  (global-set-key [f4] 'kill-buffer)
+  (global-set-key [f1] 'jclean)
+  (global-set-key [f2] 'jcompile)
+  (global-set-key [f3] 'jrun)
+  (global-set-key [f4] 'jdoc)
   (global-set-key [f5] 'revert-buffer)
   (global-set-key [f6] 'kill-dired-buffers)
   (global-set-key [f7] 'ispell-word)
@@ -593,7 +568,7 @@ Requires some config in the .dir-locals.el
   (global-set-key [f12] 'buffer-menu)
   (global-set-key "\M-0"  'bookmark-set)
   (global-set-key "\M-?"  `bookmark-bmenu-list)
-  (global-set-key (kbd "C-.") 'jcompilebase)
+  (global-set-key (kbd "C-.") 'jcompile)
   (global-set-key (kbd "C-,") 'other-window)
   (global-set-key (kbd "C-c b")  'buffer-menu)
   (global-set-key (kbd "C-c l")  'org-store-link) 
@@ -605,15 +580,7 @@ Requires some config in the .dir-locals.el
   (global-set-key (kbd "<M-f4>")   'org-agenda)
   (global-set-key (kbd "<M-f5>")   'diary)
   (global-set-key (kbd "<M-f6>")   'calendar)
-  (global-set-key (kbd "<M-f7>")  'jcompilepanelclean)
-  ;;(global-set-key (kbd "<M-f10>")  'j-compile-console-clean)
-  ;;(global-set-key (kbd "<M-f11>")  'jcompilebaseclean)
-  (global-set-key (kbd "<M-f10>")  'jcompilepanel)
-  (global-set-key (kbd "<M-f11>")  'jcompilepanel)
-  (global-set-key (kbd "C-c m")  'jcompilepanel-m)
-  (global-set-key (kbd "C-c n")  'jcompilekeypad-n)
 
-  (global-set-key (kbd "<M-f12>")  'jcompilebase)
   (global-set-key (kbd "C-x <up>") 'windmove-up)
   (global-set-key (kbd "C-x <down>") 'windmove-down)
   (global-set-key (kbd "C-x <right>") 'windmove-right)
