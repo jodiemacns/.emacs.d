@@ -274,12 +274,12 @@ The cyberpunk theme is dark and colorful.
   (split-window-horizontally)
   (other-window 1)
   (split-window-vertically)
-  (switch-to-buffer "quasar.bat")
-  (compile "lint-nt.exe +v -w2 -u quasarui.lnt")
+  (switch-to-buffer "makefile")
+  (compile "splint")
   (other-window 1)
   (end-of-buffer)
   (other-window 1)
-  (message "J- Clean")
+  (message "J- Lint")
   )
 #+END_SRC
 *** Error parsers
@@ -521,7 +521,7 @@ Requires some config in the .dir-locals.el
               ))
   (add-hook 'c-mode-common-hook
             (lambda () (setq flycheck-clang-include-path
-                             (list (expand-file-name "C:/MinGW/include/"))))
+                             (list (expand-file-name "/usr/lib/avr/include/avr"))))
             )
                        
 
